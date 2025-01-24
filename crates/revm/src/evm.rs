@@ -228,13 +228,21 @@ impl<EXT, DB: Database> Evm<'_, EXT, DB> {
     /// This function will validate the transaction.
     #[inline]
     pub fn transact(&mut self) -> EVMResult<DB::Error> {
+        println!("transact");
         let initial_gas_spend = self.preverify_transaction_inner().map_err(|e| {
             self.clear();
             e
         })?;
+        println!("initial_gas_spend: {}", initial_gas_spend);
 
         let output = self.transact_preverified_inner(initial_gas_spend);
+        if let Ok(output) = &output {
+            println!("output (1): {:?}", output);
+        }
         let output = self.handler.post_execution().end(&mut self.context, output);
+        if let Ok(output) = &output {
+            println!("output (2): {:?}", output);
+        }
         self.clear();
         output
     }
