@@ -332,24 +332,31 @@ impl<EXT, DB: Database> Evm<'_, EXT, DB> {
 
     /// Transact pre-verified transaction.
     pub fn transact_preverified_inner(&mut self, initial_gas_spend: u64) -> EVMResult<DB::Error> {
+        println!("transact_preverified_inner");
         let spec_id = self.spec_id();
+        println!("spec_id: {:?}", spec_id);
         let ctx = &mut self.context;
+        println!("ctx");
         let pre_exec = self.handler.pre_execution();
 
+        println!("pre_exec.load_accounts");
         // load access list and beneficiary if needed.
         pre_exec.load_accounts(ctx)?;
 
+        println!("pre_exec.load_precompiles");
         // load precompiles
         let precompiles = pre_exec.load_precompiles();
         ctx.evm.set_precompiles(precompiles);
-
+        println!("pre_exec.deduct_caller");
         // deduce caller balance with its limit.
         pre_exec.deduct_caller(ctx)?;
-
+        println!("gas_limit");
         let gas_limit = ctx.evm.env.tx.gas_limit - initial_gas_spend;
 
+        println!("exec");
         let exec = self.handler.execution();
         // call inner handling of call/create
+        println!("first_frame_or_result");
         let first_frame_or_result = match ctx.evm.env.tx.transact_to {
             TxKind::Call(_) => exec.call(
                 ctx,
@@ -375,24 +382,32 @@ impl<EXT, DB: Database> Evm<'_, EXT, DB> {
         };
 
         // Starts the main running loop.
+        println!("run_the_loop");
         let mut result = match first_frame_or_result {
             FrameOrResult::Frame(first_frame) => self.run_the_loop(first_frame)?,
             FrameOrResult::Result(result) => result,
         };
 
+        println!("last_frame_return");
         let ctx = &mut self.context;
 
+        println!("last_frame_return");
         // handle output of call/create calls.
         self.handler
             .execution()
             .last_frame_return(ctx, &mut result)?;
 
+        println!("post_exec");
+
         let post_exec = self.handler.post_execution();
         // Reimburse the caller
+        println!("reimburse_caller");
         post_exec.reimburse_caller(ctx, result.gas())?;
         // Reward beneficiary
+        println!("reward_beneficiary");
         post_exec.reward_beneficiary(ctx, result.gas())?;
         // Returns output of transaction.
+        println!("output");
         post_exec.output(ctx, result)
     }
 }
