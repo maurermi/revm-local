@@ -26,8 +26,16 @@ pub fn execute_frame<SPEC: Spec, EXT, DB: Database>(
     let interpreter = frame.interpreter_mut();
     let memory = mem::replace(shared_memory, EMPTY_SHARED_MEMORY);
     let next_action = match instruction_tables {
-        InstructionTables::Plain(table) => interpreter.run(memory, table, context),
-        InstructionTables::Boxed(table) => interpreter.run(memory, table, context),
+        InstructionTables::Plain(table) => {
+            println!("Plain");
+            println!("table: {:?}", table);
+            interpreter.run(memory, table, context)
+        }
+        InstructionTables::Boxed(table) => {
+            println!("Boxed");
+            println!("table: {:?}", table);
+            interpreter.run(memory, table, context)
+        }
     };
     // Take the shared memory back.
     *shared_memory = interpreter.take_memory();
