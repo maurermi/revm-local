@@ -33,7 +33,6 @@ pub fn execute_frame<SPEC: Spec, EXT, DB: Database>(
         }
         InstructionTables::Boxed(table) => {
             println!("Boxed");
-            println!("table: {:?}", table);
             interpreter.run(memory, table, context)
         }
     };
