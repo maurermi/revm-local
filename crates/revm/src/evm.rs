@@ -234,14 +234,18 @@ impl<EXT, DB: Database> Evm<'_, EXT, DB> {
             e
         })?;
         println!("initial_gas_spend: {}", initial_gas_spend);
-
+        println!("calling transact_preverified_inner");
         let output = self.transact_preverified_inner(initial_gas_spend);
         if let Ok(output) = &output {
             println!("output (1): {:?}", output);
+        } else {
+            println!("No output 1");
         }
         let output = self.handler.post_execution().end(&mut self.context, output);
         if let Ok(output) = &output {
             println!("output (2): {:?}", output);
+        } else {
+            println!("No output 2");
         }
         self.clear();
         output
