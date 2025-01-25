@@ -89,17 +89,23 @@ impl<'a, EXT, DB: Database> Evm<'a, EXT, DB> {
         // Peek the last stack frame.
         let mut stack_frame = call_stack.last_mut().unwrap();
 
+        let mut counter = 0;
         loop {
+            counter += 1;
+            println!("frame: {}", counter);
             // Execute the frame.
             let next_action =
                 self.handler
                     .execute_frame(stack_frame, &mut shared_memory, &mut self.context)?;
 
+            println!("next_action: {:?}", next_action);
             // Take error and break the loop, if any.
             // This error can be set in the Interpreter when it interacts with the context.
             self.context.evm.take_error()?;
 
+            println!("handler.execution");
             let exec = &mut self.handler.execution;
+            println!("frame_or_result, next_action: {:?}", next_action);
             let frame_or_result = match next_action {
                 InterpreterAction::Call { inputs } => exec.call(&mut self.context, inputs)?,
                 InterpreterAction::Create { inputs } => exec.create(&mut self.context, inputs)?,
@@ -133,6 +139,7 @@ impl<'a, EXT, DB: Database> Evm<'a, EXT, DB> {
                 }
                 InterpreterAction::None => unreachable!("InterpreterAction::None is not expected"),
             };
+            println!("frame_or_result (2): {:?}", frame_or_result);
             // handle result
             match frame_or_result {
                 FrameOrResult::Frame(frame) => {
@@ -145,9 +152,11 @@ impl<'a, EXT, DB: Database> Evm<'a, EXT, DB> {
                         // Break the loop if there are no more frames.
                         return Ok(result);
                     };
+                    println!("top_frame: {:?}", top_frame);
                     stack_frame = top_frame;
                     let ctx = &mut self.context;
                     // Insert result to the top frame.
+                    println!("result: {:?}", result);
                     match result {
                         FrameResult::Call(outcome) => {
                             // return_call
