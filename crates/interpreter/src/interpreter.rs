@@ -386,6 +386,7 @@ impl Interpreter {
         let mut counter = 0;
         while self.instruction_result == InstructionResult::Continue {
             println!("step counter: {}", counter);
+            println!("current opcode: {:?}", self.current_opcode());
             self.step(instruction_table, host);
             counter += 1;
         }
