@@ -378,15 +378,21 @@ impl Interpreter {
     where
         FN: Fn(&mut Interpreter, &mut H),
     {
+        println!("run");
         self.next_action = InterpreterAction::None;
         self.shared_memory = shared_memory;
+        println!("Shared memory: {:?}", self.shared_memory);
         // main loop
+        let mut counter = 0;
         while self.instruction_result == InstructionResult::Continue {
+            println!("step counter: {}", counter);
             self.step(instruction_table, host);
+            counter += 1;
         }
 
         // Return next action if it is some.
         if self.next_action.is_some() {
+            println!("next_action: {:?}", self.next_action);
             return core::mem::take(&mut self.next_action);
         }
         // If not, return action without output as it is a halt.
