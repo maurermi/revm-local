@@ -93,6 +93,7 @@ impl<'a, EXT, DB: Database> Evm<'a, EXT, DB> {
         loop {
             counter += 1;
             println!("frame: {}", counter);
+            println!("stack_frame: {:?}", stack_frame);
             // Execute the frame.
             let next_action =
                 self.handler
